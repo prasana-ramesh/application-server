@@ -1,0 +1,1 @@
+Application server. First hit the authorization server and get Oauth2 token. Use the token to access the resources/ end point.
