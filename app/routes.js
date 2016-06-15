@@ -24,27 +24,6 @@ module.exports = function(app) {
   // Create API group routes
   const apiRoutes = express.Router();
 
-  // Register new users
-  apiRoutes.post('/register', function(req, res) {
-    console.log(req.body);
-    if(!req.body.email || !req.body.password) {
-      res.status(400).json({ success: false, message: 'Please enter email and password.' });
-    } else {
-      const newUser = new User({
-        email: req.body.email,
-        password: req.body.password
-      });
-
-      // Attempt to save the user
-      newUser.save(function(err) {
-        if (err) {
-          return res.status(400).json({ success: false, message: 'That email address already exists.'});
-        }
-        res.status(201).json({ success: true, message: 'Successfully created new user.' });
-      });
-    }
-  });
-
   // Protect chat routes with JWT
   // GET messages for authenticated user
   apiRoutes.get('/chat', requireAuth, function(req, res) {
@@ -72,32 +51,6 @@ module.exports = function(app) {
         });
   });
 
-    // Authenticate the user and get a JSON Web Token to include in the header of future requests.
-  /*apiRoutes.post('/authenticate', function(req, res) {
-    User.findOne({
-      email: req.body.email
-    }, function(err, user) {
-      if (err) throw err;
-
-      if (!user) {
-        res.status(401).json({ success: false, message: 'Authentication failed. User not found.' });
-      } else {
-        // Check if password matches
-        user.comparePassword(req.body.password, function(err, isMatch) {
-          if (isMatch && !err) {
-            // Create token if the password matched and no error was thrown
-            const token = jwt.sign(user, config.secret, {
-              expiresIn: 10080 // in seconds
-            });
-            res.status(200).json({ success: true, token: 'JWT ' + token });
-          } else {
-            res.status(401).json({ success: false, message: 'Authentication failed. Passwords did not match.' });
-          }
-        });
-      }
-    });
-  }); */
-
   // PUT to update a message the authenticated user sent
   apiRoutes.put('/chat/:message_id', requireAuth, function(req, res) {
     Chat.findOne({$and : [{'_id': req.params.message_id}, {'from': req.user._id}]}, function(err, message) {
@@ -118,7 +71,7 @@ module.exports = function(app) {
   
   //GET Test for Authenticated user
   apiRoutes.get('/getUserId', requireAuth, function(req, res) {
-	res.json({ userId: req.user._id });
+	res.json({ userId: req.user._id, email: req.user.email });
   });  
 
   
