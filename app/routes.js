@@ -21,6 +21,7 @@ module.exports = function(app) {
   // Bring in defined Passport Strategy
   require('../config/passport')(passport);
 
+
   // Create API group routes
   const apiRoutes = express.Router();
 
@@ -68,13 +69,14 @@ module.exports = function(app) {
       });
     });
   });
-  
+
   //GET Test for Authenticated user
   apiRoutes.get('/getUserId', requireAuth, function(req, res) {
-	res.json({ userId: req.user._id, email: req.user.email });
-  });  
 
-  
+	res.json({ userId: req.user._id, email: req.user.email });
+  });
+
+
   // DELETE a message
   apiRoutes.delete('/chat/:message_id', requireAuth, function(req, res) {
     Chat.findOneAndRemove({$and : [{'_id': req.params.message_id}, {'from': req.user._id}]}, function(err) {
