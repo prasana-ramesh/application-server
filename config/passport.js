@@ -1,6 +1,6 @@
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-const User = require('../app/models/user');
+const User = require('../app/models/mongodb/user');
 const config = require('../config/main');
 const jwt = require('jsonwebtoken');
 
@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 module.exports = function(passport) {
   const opts = {
     jwtFromRequest: ExtractJwt.fromAuthHeader(),
-    secretOrKey: config.secret
+    secretOrKey: config.auth.secret
   };
   passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
     //user = jwt.verify(jwt_payload,config.secret);

@@ -2,14 +2,15 @@
 const passport = require('passport');
 const express = require('express');
 const config = require('../config/main');
-const jwt = require('jsonwebtoken');
 
 // Set up middleware
+// Bring in defined Passport Strategy
+require('../config/passport')(passport);
 const requireAuth = passport.authenticate('jwt', { session: false });
 
 // Load models
-const User = require('./models/user');
-const Chat = require('./models/chat');
+const User = require('./models/mongodb/user');
+const Chat = require('./models/mongodb/chat');
 
 // Export the routes for our app to use
 module.exports = function(app) {
@@ -18,12 +19,21 @@ module.exports = function(app) {
   // Initialize passport for use
   app.use(passport.initialize());
 
-  // Bring in defined Passport Strategy
-  require('../config/passport')(passport);
-
-
   // Create API group routes
   const apiRoutes = express.Router();
+
+  // Route to test whether connecting to Neo4j database works
+  apiRoutes.get('/test/connect', requireAuth, function(req, res) {
+      var session = req.app.get('neo4jsession')();
+      console.log('You are inside:');
+      console.log(session);
+      session
+        .run( 'MATCH (a:Person {lastname: "Ivy"}) RETURN a' )
+        .then( function( result ) {
+          console.log( result.records[0].get("firstname") + " " + result.records[0].get("lastname") );
+          session.close();
+        })
+   });
 
   // Protect chat routes with JWT
   // GET messages for authenticated user
